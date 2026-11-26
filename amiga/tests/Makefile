@@ -18,6 +18,7 @@ EXCHANGE_OPTS_TEST := $(BUILD_DIR)/test_fujinet_nio_exchange_opts
 PAULA_UART_TEST := $(BUILD_DIR)/test_fujinet_paula_uart
 LIFECYCLE_TEST := $(BUILD_DIR)/test_fujinet_serial_lifecycle
 SERIAL_WAIT_TEST := $(BUILD_DIR)/test_fujinet_nio_serial_wait
+BOOT_CONFIG_TEST := $(BUILD_DIR)/test_fujinet_boot_config
 EXEC_STUB_HEADERS := $(wildcard stubs/exec/*.h stubs/proto/*.h)
 LIBRARY := $(LIB_ROOT)/build/fujinet-nio-linux.a
 
@@ -26,7 +27,7 @@ LIBRARY := $(LIB_ROOT)/build/fujinet-nio-linux.a
 all: $(TEST) $(RETRY_TEST) $(QUEUE_TEST) $(EXEC_BOUNDARY_TEST) $(RESIDENT_TEST) \
 	$(NIO_DEVICE_TEST) $(PACKET_BACKEND_TEST) $(DIRECTORY_BACKEND_TEST) \
 	$(SERIAL_CHANNEL_TEST) $(EXCHANGE_OPTS_TEST) $(EXCHANGE_DISK_TEST) $(EXCHANGE_ADAPTER_TEST) \
-	$(PAULA_UART_TEST) $(LIFECYCLE_TEST) $(SERIAL_WAIT_TEST)
+	$(PAULA_UART_TEST) $(LIFECYCLE_TEST) $(SERIAL_WAIT_TEST) $(BOOT_CONFIG_TEST)
 
 $(TEST): test_fujinet_disk_driver.c \
 		$(DRIVER_ROOT)/common/fujinet_disk_driver.c \
@@ -111,10 +112,18 @@ $(SERIAL_WAIT_TEST): test_fujinet_nio_serial_wait.c \
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -Istubs -I$(DRIVER_ROOT)/include $(filter %.c,$^) -o $@
 
+$(BOOT_CONFIG_TEST): test_fujinet_boot_config.c \
+		$(DRIVER_ROOT)/common/fujinet_boot_config.c \
+		$(DRIVER_ROOT)/include/fujinet_boot_config.h
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -I$(DRIVER_ROOT)/include \
+		test_fujinet_boot_config.c \
+		$(DRIVER_ROOT)/common/fujinet_boot_config.c -o $@
+
 test: $(TEST) $(RETRY_TEST) $(QUEUE_TEST) $(EXEC_BOUNDARY_TEST) $(RESIDENT_TEST) \
 		$(NIO_DEVICE_TEST) $(PACKET_BACKEND_TEST) $(DIRECTORY_BACKEND_TEST) \
 		$(SERIAL_CHANNEL_TEST) $(EXCHANGE_OPTS_TEST) $(EXCHANGE_DISK_TEST) $(EXCHANGE_ADAPTER_TEST) \
-		$(PAULA_UART_TEST) $(LIFECYCLE_TEST) $(SERIAL_WAIT_TEST)
+		$(PAULA_UART_TEST) $(LIFECYCLE_TEST) $(SERIAL_WAIT_TEST) $(BOOT_CONFIG_TEST)
 	./$(TEST)
 	./$(RETRY_TEST)
 	./$(QUEUE_TEST)
@@ -130,6 +139,7 @@ test: $(TEST) $(RETRY_TEST) $(QUEUE_TEST) $(EXEC_BOUNDARY_TEST) $(RESIDENT_TEST)
 	./$(PAULA_UART_TEST)
 	./$(LIFECYCLE_TEST)
 	./$(SERIAL_WAIT_TEST)
+	./$(BOOT_CONFIG_TEST)
 
 clean:
 	rm -rf $(BUILD_DIR)

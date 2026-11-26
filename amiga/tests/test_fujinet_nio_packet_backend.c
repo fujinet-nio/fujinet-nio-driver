@@ -130,6 +130,14 @@ void ReplyMsg(struct Message *msg)
     ++replies;
     if (active_request == (struct IORequest *)msg) active_request = NULL;
 }
+/* fujinet-nio-lib's wait-hook path (SendIO/Wait/CheckIO) runs only when a
+ * caller sets a hook, which these tests never do. */
+void SendIO(struct IORequest *req) { (void)req; CHECK(0); }
+ULONG Wait(ULONG signals) { CHECK(0); return signals; }
+struct IORequest *CheckIO(struct IORequest *req) { CHECK(0); return req; }
+LONG AbortIO(struct IORequest *req) { (void)req; CHECK(0); return 0; }
+LONG WaitIO(struct IORequest *req) { CHECK(0); return req->io_Error; }
+ULONG SetSignal(ULONG new_signals, ULONG mask) { (void)mask; CHECK(0); return new_signals; }
 LONG DoIO(struct IORequest *req)
 {
     struct FujiNetNIORequest *nio = (struct FujiNetNIORequest *)req;

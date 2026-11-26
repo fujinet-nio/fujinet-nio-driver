@@ -174,19 +174,28 @@ standard trackdisk status commands on both the normal test OS and Workbench
 
 ## RS-232 baud rate and serial driver
 
-WB2+ profiles contain `fujinet-nio-baud` and `fujinet-nio-serial`. With the
+All profiles (including Kickstart 1.3) contain `fujinet-nio-baud`; WB2+
+profiles also contain `fujinet-nio-serial`. With the
 resident `fujinet-nio.device` loaded, use them to inspect or select the rate
 and Exec serial driver used when the RS-232 backend next opens:
 
 ```text
 fujinet-nio-baud
 fujinet-nio-baud 38400
+fujinet-nio-baud FROM=S:FujiNet-Config
 fujinet-nio-serial
 fujinet-nio-serial fujinet-serial.device
 fujinet-nio-serial serial.device
 ```
 
-Supported baud values are 300–230400. The serial driver name is an Exec
+Supported baud values are 300–230400. `FROM=<file>` reads the rate from a
+settings file with one `KEY=value` per line, `;` comment lines and blank lines
+ignored (CRLF and trailing blanks tolerated); only `BAUD=` is defined, e.g.
+`BAUD=38400`. The `FROM=` prefix is case-insensitive and the file is read up to
+1024 bytes. It is meant for a boot line (`C:fujinet-nio-baud
+FROM=S:FujiNet-Config`) and never fails a boot: a missing file is silent
+(return 0); a missing or invalid `BAUD=`, a device open failure or a failed
+set returns 5 (WARN) with one message line. The serial driver name is an Exec
 device (`serial.device` by default). `fujinet-serial.device` is the FujiNet
 Paula UART driver: 8N1 only, exclusive open, a receive-buffer-full interrupt
 that copies `SERDATR` into a ring, and polled `TBE` on transmit. Load it

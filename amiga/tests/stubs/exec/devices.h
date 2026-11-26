@@ -4,7 +4,7 @@
 #include <exec/libraries.h>
 
 struct Node { struct Node *ln_Succ; struct Node *ln_Pred; UBYTE ln_Type; };
-struct MsgPort { unsigned native_replies; };
+struct MsgPort { unsigned native_replies; UBYTE mp_SigBit; };
 struct Message { struct Node mn_Node; struct MsgPort *mn_ReplyPort; UWORD mn_Length; };
 struct Unit { ULONG flags; };
 struct Device { struct Library dd_Library; };

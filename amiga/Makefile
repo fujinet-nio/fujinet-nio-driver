@@ -92,9 +92,9 @@ native: library $(DEVICE) $(MOUNT_TOOL) $(RESIDENT_LOADER) $(RESIDENT_UNLOADER) 
 # Release/staging assets for one named Workbench profile.  The WB1.3 package
 # deliberately excludes tools that require DOS node removal introduced later.
 profile-artifacts: library $(DEVICE) $(MOUNT_TOOL) $(RESIDENT_LOADER) \
-	$(NIO_DEVICE) $(SERIAL_DEVICE) $(NIO_EXCHANGE) sdk resident-artifacts
+	$(NIO_DEVICE) $(SERIAL_DEVICE) $(NIO_EXCHANGE) $(NIO_BAUD) sdk resident-artifacts
 ifneq ($(AMIGA_WB13),1)
-profile-artifacts: $(RESIDENT_UNLOADER) $(TD_PROBE) $(NIO_BAUD) $(NIO_SERIAL)
+profile-artifacts: $(RESIDENT_UNLOADER) $(TD_PROBE) $(NIO_SERIAL)
 endif
 
 resident-artifacts: $(DEVICE) $(NIO_DEVICE) $(SERIAL_DEVICE)
@@ -185,10 +185,12 @@ $(NIO_EXCHANGE): tools/fujinet_serial_request_probe.c tools/fujinet_nio_exchange
 		tools/fujinet_serial_request_probe.c tools/fujinet-nio-exchange.c tools/fujinet_nio_exchange_legacy_worker.S tools/fujinet_nio_exchange_opts.c tools/fujinet_nio_exchange_disk.c tools/fujinet_nio_exchange_disk_adapter.c \
 		$(LIBRARY) -lamiga -o $@
 
-$(NIO_BAUD): tools/fujinet-nio-baud.c include/fujinet_nio_device.h \
-		include/fujinet_nio_endian.h
+$(NIO_BAUD): tools/fujinet-nio-baud.c common/fujinet_boot_config.c \
+		include/fujinet_nio_device.h include/fujinet_nio_endian.h \
+		include/fujinet_boot_config.h
 	@mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -mcrt=clib2 $< -lamiga -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(MOUNT_TOOL_CRT) tools/fujinet-nio-baud.c \
+		common/fujinet_boot_config.c -lamiga -o $@
 
 $(NIO_SERIAL): tools/fujinet-nio-serial.c include/fujinet_nio_device.h \
 		include/fujinet_nio_endian.h include/fujinet_nio_serial_config.h
